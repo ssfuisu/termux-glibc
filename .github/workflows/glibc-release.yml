@@ -30,7 +30,7 @@ jobs:
         run: |
           bash scripts/make-bootstrap.sh /tmp/glibc-sysroot-aarch64 glibc-bootstrap-aarch64.zip aarch64
           sha256sum glibc-bootstrap-aarch64.zip | tee glibc-bootstrap-aarch64.zip.sha256
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: glibc-bootstrap-aarch64
           path: |
@@ -51,7 +51,7 @@ jobs:
         run: |
           bash scripts/make-bootstrap.sh /tmp/glibc-sysroot-arm glibc-bootstrap-arm.zip arm
           sha256sum glibc-bootstrap-arm.zip | tee glibc-bootstrap-arm.zip.sha256
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: glibc-bootstrap-arm
           path: |
@@ -110,7 +110,7 @@ jobs:
           (cd dist && sha256sum *.apk | tee ../apk.sha256)
           ls -lh dist/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: apks
           path: |
