@@ -263,4 +263,7 @@ afterEvaluate {
     android.applicationVariants.all { variant ->
         variant.javaCompileProvider.get().dependsOn(downloadBootstraps)
     }
+    // Fork: the NDK build embeds bootstrap zips via incbin, so they must
+    // be downloaded before any native compile starts.
+    tasks.findByName("preBuild")?.dependsOn(downloadBootstraps)
 }
