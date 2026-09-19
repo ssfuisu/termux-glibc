@@ -160,7 +160,7 @@ jobs:
           find ./release-assets -name '*.sha256' -exec cp {} ./out/ \;
           ls -lh ./out/
           (cd ./out && sha256sum * | tee ../CHECKSUMS.txt)
-          cp ../CHECKSUMS.txt ./out/CHECKSUMS.txt
+          cp ./CHECKSUMS.txt ./out/CHECKSUMS.txt
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
