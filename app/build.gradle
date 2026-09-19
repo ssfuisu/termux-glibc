@@ -45,7 +45,8 @@ android {
         targetSdkVersion project.properties.targetSdkVersion.toInteger()
         // Fork: versionCode can be bumped per CI build via TERMUX_APK_VERSION_CODE.
         // Default tracks upstream (118). CI sets 10000 + github.run_number.
-        versionCode (System.getenv("TERMUX_APK_VERSION_CODE") ?: "118").toInteger()
+        def apkVersionCodeStr = System.getenv("TERMUX_APK_VERSION_CODE") ?: "118"
+        versionCode apkVersionCodeStr.toInteger()
         versionName "0.118.0"
 
         if (appVersionName) versionName = appVersionName
@@ -89,15 +90,19 @@ android {
         }
         // Fork: fixed release keystore. Same file on every CI build.
         // CI restores it from the KEYSTORE_BASE64 secret to KEYSTORE_FILE.
-        // Never commit the real keystore. Unsigned when secrets are absent.
-        fixedRelease {
-            def storePath = System.getenv("KEYSTORE_FILE") ?: "${rootDir}/release.keystore"
-            storeFile file(storePath)
-            storePassword System.getenv("KEYSTORE_PASSWORD")
-            keyAlias System.getenv("KEY_ALIAS") ?: "termuxglibc"
-            keyPassword System.getenv("KEY_PASSWORD")
-            enableV1Signing true
-            enableV2Signing true
+        // Never commit the real keystore. Created only when secrets exist
+        // so debug and upstream workflows keep working without them.
+        if (System.getenv("KEYSTORE_PASSWORD") != null) {
+            fixedRelease {
+                def storePath = System.getenv("KEYSTORE_FILE") ?: "${rootDir}/release.keystore"
+                storeFile file(storePath)
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                def keyAliasName = System.getenv("KEY_ALIAS") ?: "termuxglibc"
+                keyAlias keyAliasName
+                keyPassword System.getenv("KEY_PASSWORD")
+                enableV1Signing true
+                enableV2Signing true
+            }
         }
     }
 
