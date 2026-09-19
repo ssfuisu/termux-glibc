@@ -81,6 +81,12 @@ jobs:
         run: |
           echo "$KEYSTORE_BASE64" | base64 -d > "$GITHUB_WORKSPACE/release.keystore"
           ls -lh "$GITHUB_WORKSPACE/release.keystore"
+          echo "keystore sha256:"
+          sha256sum "$GITHUB_WORKSPACE/release.keystore"
+          echo "secret fingerprints (sha256 hashes only, safe to log):"
+          printf '%s' "$KEYSTORE_PASSWORD" | sha256sum
+          printf '%s' "$KEY_ALIAS" | sha256sum
+          printf '%s' "$KEY_PASSWORD" | sha256sum
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
 
