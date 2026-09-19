@@ -83,12 +83,19 @@ jobs:
           ls -lh "$GITHUB_WORKSPACE/release.keystore"
           echo "keystore sha256:"
           sha256sum "$GITHUB_WORKSPACE/release.keystore"
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
+      - name: Show secret fingerprints
+        run: |
           echo "secret fingerprints (sha256 hashes only, safe to log):"
           printf '%s' "$KEYSTORE_PASSWORD" | sha256sum
           printf '%s' "$KEY_ALIAS" | sha256sum
           printf '%s' "$KEY_PASSWORD" | sha256sum
         env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Build signed release APKs (arm64-v8a + armeabi-v7a)
         run: ./gradlew :app:assembleRelease --stacktrace --no-daemon
