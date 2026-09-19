@@ -8,6 +8,18 @@ SYSROOT="${1:?usage: make-bootstrap.sh <sysroot> <output.zip> [arch]}"
 OUTPUT="${2:?usage: make-bootstrap.sh <sysroot> <output.zip> [arch]}"
 ARCH="${3:-aarch64}"
 
+# Resolve to absolute path: the zip is created from inside $STAGE later.
+case "$OUTPUT" in
+  /*) ;;
+  *) OUTPUT="$(pwd)/$OUTPUT" ;;
+esac
+
+test -x "$SYSROOT/lib/libc.so.6" || {
+  echo "ERROR: sysroot looks empty: $SYSROOT/lib/libc.so.6 missing"
+  ls -la "$SYSROOT" || true
+  exit 1
+}
+
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 
