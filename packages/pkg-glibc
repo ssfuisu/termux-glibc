@@ -1,0 +1,57 @@
+#!/bin/bash
+# pkg-glibc: minimal package installer for the glibc prefix.
+# No proot. Binaries run through the glibc loader (see GlibcRunner.java).
+# Usage:
+#   pkg-glibc update
+#   pkg-glibc install <name>
+#   pkg-glibc list
+#   pkg-glibc run <binary> [args...]
+set -euo pipefail
+
+PREFIX="${PREFIX:-$HOME/../files/usr}"
+GLIBC_PREFIX="$PREFIX/glibc"
+REPO_URL="${GLIBC_REPO_URL:-https://github.com/OWNER/termux-glibc/releases/latest/download}"
+CORE_LIST="$(dirname "$0")/core.list"
+
+if [ "$(uname -m)" = "aarch64" ]; then
+  LOADER="$GLIBC_PREFIX/lib/ld-linux-aarch64.so.1"
+  TRIPLE="aarch64"
+else
+  LOADER="$GLIBC_PREFIX/lib/ld-linux-armhf.so.3"
+  TRIPLE="arm"
+fi
+LIBPATH="$GLIBC_PREFIX/lib:$GLIBC_PREFIX/usr/lib"
+
+cmd="${1:-help}"
+case "$cmd" in
+  update)
+    echo "Repository: $REPO_URL"
+    echo "Core packages:"
+    cat "$CORE_LIST"
+    ;;
+  list)
+    ls -1 "$GLIBC_PREFIX/bin" 2>/dev/null || echo "glibc prefix not installed"
+    ;;
+  install)
+    pkg="${2:?usage: pkg-glibc install <name>}"
+    tmp="$(mktemp -d)"
+    trap 'rm -rf "$tmp"' EXIT
+    echo "Downloading $pkg for $TRIPLE..."
+    curl -fL "$REPO_URL/$pkg-$TRIPLE.tar.xz" -o "$tmp/pkg.tar.xz"
+    tar -xJf "$tmp/pkg.tar.xz" -C "$GLIBC_PREFIX"
+    echo "Installed $pkg. Run with: pkg-glibc run $pkg"
+    ;;
+  run)
+    bin="${2:?usage: pkg-glibc run <binary> [args...]}"
+    shift 2
+    exec "$LOADER" --library-path "$LIBPATH" "$GLIBC_PREFIX/bin/$bin" "$@"
+    ;;
+  shell)
+    shift || true
+    exec "$LOADER" --library-path "$LIBPATH" "$GLIBC_PREFIX/bin/bash" --login "$@"
+    ;;
+  *)
+    echo "Usage: pkg-glibc {update|list|install <name>|run <binary>|shell}"
+    exit 1
+    ;;
+esac

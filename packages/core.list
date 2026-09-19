@@ -1,0 +1,10 @@
+bash
+coreutils
+curl
+ca-certificates
+tar
+xz
+readline
+ncurses
+zlib
+openssl

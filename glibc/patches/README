@@ -1,0 +1,11 @@
+# Android kernel compatibility notes for glibc on Android.
+#
+# 1. Minimum kernel 4.9 (--enable-kernel=4.9). clone3/openat2 are probed
+#    at runtime and fall back to clone/openat. No patch needed on glibc 2.34+.
+# 2. No systemd, no SELinux userspace. Build uses --without-selinux.
+# 3. DNS: Android does not provide /etc/resolv.conf. Bootstrap writes a
+#    static resolv.conf (1.1.1.1, 8.8.8.8). No NSS patch needed.
+# 4. Timezone: $GLIBC_PREFIX/share/zoneinfo is used, TZ is unset by default.
+# 5. Keep the on-device absolute interpreter path stable:
+#    /data/data/com.termux.glibc/files/usr/glibc/lib/ld-linux-*.so.1
+#    Changing applicationId breaks all binaries. Do not rename.
